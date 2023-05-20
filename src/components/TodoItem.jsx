@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import clsx from 'clsx';
+import { useRef } from 'react';
+
 import {
   CheckActiveIcon,
   CheckCircleIcon,
@@ -99,19 +102,56 @@ const StyledTaskItem = styled.div`
     }
   }
 `;
+// todo.isEdit
+const TodoItem = ({ todo, onToggleDone, onSave, onDelete, onChangeMode }) => {
+  //useRef 用來在沒有render時暫存資料，初始值為null
+  //inputRef為一個object: {current: null}
+  const inputRef = useRef(null);
 
-const TodoItem = () => {
+  const handleKeyDown = (e) => {
+    if (inputRef.current.value.length > 0 && e.key === 'Enter') {
+      onSave?.({ id: todo.id, title: inputRef.current.value });
+    }
+
+    if (e.key === 'Escape') {
+      onChangeMode?.({ id: todo.id, isEdit: false });
+    }
+  };
+
   return (
-    <StyledTaskItem>
+    <StyledTaskItem
+      className={clsx('', { done: todo.isDone, edit: todo.isEdit })}
+    >
       <div className="task-item-checked">
-        <span className="icon icon-checked" />
+        <span
+          className="icon icon-checked"
+          onClick={() => {
+            onToggleDone?.(todo.id);
+          }}
+        />
       </div>
-      <div className="task-item-body">
-        <span className="task-item-body-text">todo</span>
-        <input className="task-item-body-input" />
+      <div
+        className="task-item-body"
+        onDoubleClick={() => {
+          onChangeMode?.({ id: todo.id, isEdit: true });
+        }}
+      >
+        <span className="task-item-body-text">{todo.title}</span>
+        {/* inputRef放在這表示inputRef.current會選到這個input, inputRef.current.value = 這個input的value */}
+        <input
+          ref={inputRef}
+          className="task-item-body-input"
+          onKeyDown={handleKeyDown}
+          defaultValue={todo.title}
+        />
       </div>
       <div className="task-item-action ">
-        <button className="btn-reset btn-destroy icon"></button>
+        <button
+          className="btn-reset btn-destroy icon"
+          onClick={() => {
+            onDelete?.(todo.id);
+          }}
+        ></button>
       </div>
     </StyledTaskItem>
   );

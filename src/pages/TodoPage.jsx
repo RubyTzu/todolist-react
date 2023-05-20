@@ -1,4 +1,5 @@
 import { Footer, Header, TodoCollection, TodoInput } from 'components';
+import { useState } from 'react';
 
 const dummyTodos = [
   {
@@ -24,13 +25,135 @@ const dummyTodos = [
 ];
 
 const TodoPage = () => {
+  const [todos, setTodos] = useState(dummyTodos);
+  const [inputValue, setInputValue] = useState('');
+  const todoCounts = todos.length
+
+  const handleChange = (value) => {
+    setInputValue(value);
+  };
+
+  const handleAddTodo = () => {
+    if (inputValue.length === 0) {
+      return;
+    }
+
+    setTodos((prevTodos) => {
+      return [
+        ...prevTodos,
+        {
+          id: Math.random() * 100,
+          title: inputValue,
+          isDone: false,
+        },
+      ];
+    });
+
+    setInputValue('');
+  };
+
+  const handleKeyDown = () => {
+    if (inputValue.length === 0) {
+      return;
+    }
+
+    setTodos((prevTodos) => {
+      return [
+        ...prevTodos,
+        {
+          id: Math.random() * 100,
+          title: inputValue,
+          isDone: false,
+        },
+      ];
+    });
+
+    setInputValue('');
+  };
+
+  const handleToggleDone = (id) => {
+    setTodos((prevTodos) => {
+      return prevTodos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            isDone: !todo.isDone,
+          };
+        }
+        return todo;
+      });
+    });
+
+    // let nextTodos = todos.map((todo) => {
+    //   if (todo.id === id) {
+    //     return {
+    //       ...todo,
+    //       isDone: !todo.isDone,
+    //     };
+    //   }
+    //   return todo;
+    // });
+
+    // setTodos(nextTodos);
+  };
+
+  const handleChangeMode = ({ id, isEdit }) => {
+    setTodos((prevTodos) => {
+      return prevTodos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            isEdit: isEdit,
+          };
+        }
+        return {
+          ...todo,
+          isEdit: false,
+        };
+      });
+    });
+  };
+
+  const handleSave = ({ id, title }) => {
+    setTodos((prevTodos) => {
+      return prevTodos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            title: title, isEdit: false
+          };
+        }
+        return todo;
+      });
+    });
+  };
+
+const handleDelete = (id) => {
+  setTodos(prevTodos => {
+    return prevTodos.filter(todo => {
+      return todo.id !== id
+    })
+  })
+}
+
   return (
     <div>
       TodoPage
       <Header />
-      <TodoInput />
-      <TodoCollection />
-      <Footer />
+      <TodoInput
+        inputValue={inputValue}
+        onChange={handleChange}
+        onAddTodo={handleAddTodo}
+        onKeyDown={handleKeyDown}
+      />
+      <TodoCollection
+        todos={todos}
+        onToggleDone={handleToggleDone}
+        onChangeMode={handleChangeMode}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+      <Footer todoCounts={todoCounts} />
     </div>
   );
 };
