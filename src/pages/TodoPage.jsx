@@ -1,33 +1,34 @@
+import { getTodos } from '../api/todos';
 import { Footer, Header, TodoCollection, TodoInput } from 'components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const dummyTodos = [
-  {
-    title: 'Learn react-router',
-    isDone: true,
-    id: 1,
-  },
-  {
-    title: 'Learn to create custom hooks',
-    isDone: false,
-    id: 2,
-  },
-  {
-    title: 'Learn to use context',
-    isDone: true,
-    id: 3,
-  },
-  {
-    title: 'Learn to implement auth',
-    isDone: false,
-    id: 4,
-  },
-];
+// const dummyTodos = [
+//   {
+//     title: 'Learn react-router',
+//     isDone: true,
+//     id: 1,
+//   },
+//   {
+//     title: 'Learn to create custom hooks',
+//     isDone: false,
+//     id: 2,
+//   },
+//   {
+//     title: 'Learn to use context',
+//     isDone: true,
+//     id: 3,
+//   },
+//   {
+//     title: 'Learn to implement auth',
+//     isDone: false,
+//     id: 4,
+//   },
+// ];
 
 const TodoPage = () => {
-  const [todos, setTodos] = useState(dummyTodos);
+  const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
-  const todoCounts = todos.length
+  const todoCounts = todos.length;
 
   const handleChange = (value) => {
     setInputValue(value);
@@ -120,7 +121,8 @@ const TodoPage = () => {
         if (todo.id === id) {
           return {
             ...todo,
-            title: title, isEdit: false
+            title: title,
+            isEdit: false,
           };
         }
         return todo;
@@ -128,13 +130,26 @@ const TodoPage = () => {
     });
   };
 
-const handleDelete = (id) => {
-  setTodos(prevTodos => {
-    return prevTodos.filter(todo => {
-      return todo.id !== id
-    })
-  })
-}
+  const handleDelete = (id) => {
+    setTodos((prevTodos) => {
+      return prevTodos.filter((todo) => {
+        return todo.id !== id;
+      });
+    });
+  };
+
+  useEffect(() => {
+    const getTodosAsync = async () => {
+      try {
+        const todos = await getTodos();
+
+        setTodos(todos.map((todo) => ({ ...todo, isEdit: false })));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getTodosAsync()
+  }, []);
 
   return (
     <div>
