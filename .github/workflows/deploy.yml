@@ -1,6 +1,6 @@
 //.github/workflows/deploy.yml
 
-name: Deploy to GitHub pages
+- name: Deploy to GitHub pages
 
 on:
   push:
